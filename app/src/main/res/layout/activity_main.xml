@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🌱 Hasiru-Usiru"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:textColor="#2E7D32"
+            android:layout_marginBottom="20dp"/>
+
+        <!-- Input Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#FFFFFF"
+            android:elevation="4dp">
+
+            <EditText
+                android:id="@+id/etSpecies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Tree Name"/>
+
+            <EditText
+                android:id="@+id/etGirth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Oxygen Score"
+                android:inputType="number"
+                android:layout_marginTop="10dp"/>
+
+            <Button
+                android:id="@+id/btnAddTree"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add Tree 🌳"
+                android:layout_marginTop="15dp"
+                android:backgroundTint="#4CAF50"
+                android:textColor="#FFFFFF"/>
+
+            <Button
+                android:id="@+id/btnEmptyPit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mark Empty Pit ❌"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="#F44336"
+                android:textColor="#FFFFFF"/>
+
+            <!-- AI Suggestion -->
+            <TextView
+                android:id="@+id/tvSuggestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="AI Suggestion will appear here 🤖"
+                android:textColor="#1B5E20"
+                android:textSize="16sp"
+                android:layout_marginTop="15dp"/>
+
+        </LinearLayout>
+
+        <!-- Dashboard -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:background="#E8F5E9"
+            android:layout_marginTop="20dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📊 Dashboard"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#2E7D32"
+                android:layout_marginBottom="10dp"/>
+
+            <TextView
+                android:id="@+id/tvTotalTrees"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🌳 Total Trees: 0"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/tvTotalOxygen"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="🌱 Total Oxygen: 0"
+                android:textSize="16sp"
+                android:layout_marginTop="5dp"/>
+        </LinearLayout>
+
+        <!-- List Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🌳 Trees List"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"/>
+
+        <!-- List -->
+        <ListView
+            android:id="@+id/listViewTrees"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="10dp"/>
+
+    </LinearLayout>
+</ScrollView>
