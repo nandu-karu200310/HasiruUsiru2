@@ -1,5 +1,6 @@
 package com.example.hasiruusiru
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -7,119 +8,339 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var db: FirebaseFirestore
-    lateinit var treeList: ArrayList<String>
-    lateinit var adapter: ArrayAdapter<String>
+    private lateinit var db: FirebaseFirestore
+
+    private lateinit var treeList: ArrayList<String>
+
+    private lateinit var adapter: ArrayAdapter<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_main)
+
+        // FIREBASE
 
         db = FirebaseFirestore.getInstance()
 
-        val etSpecies = findViewById<EditText>(R.id.etSpecies)
-        val etGirth = findViewById<EditText>(R.id.etGirth)
-        val btnAddTree = findViewById<Button>(R.id.btnAddTree)
-        val btnEmptyPit = findViewById<Button>(R.id.btnEmptyPit)
-        val listView = findViewById<ListView>(R.id.listViewTrees)
+        // UI IDS
 
-        val tvTotalTrees = findViewById<TextView>(R.id.tvTotalTrees)
-        val tvTotalOxygen = findViewById<TextView>(R.id.tvTotalOxygen)
-        val tvSuggestion = findViewById<TextView>(R.id.tvSuggestion)
+        val etSpecies =
+            findViewById<EditText>(R.id.etSpecies)
+
+        val etGirth =
+            findViewById<EditText>(R.id.etGirth)
+
+        val btnAddTree =
+            findViewById<Button>(R.id.btnAddTree)
+
+        val btnEmptyPit =
+            findViewById<Button>(R.id.btnEmptyPit)
+
+        val btnOpenMap =
+            findViewById<Button>(R.id.btnOpenMap)
+
+        val tvSuggestion =
+            findViewById<TextView>(R.id.tvSuggestion)
+
+        val listView =
+            findViewById<ListView>(R.id.listViewTrees)
+
+        // TREE LIST
 
         treeList = ArrayList()
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, treeList)
+
+        adapter = ArrayAdapter(
+
+            this,
+
+            android.R.layout.simple_list_item_1,
+
+            treeList
+        )
+
         listView.adapter = adapter
+
+        // LOAD TREES
 
         loadTrees()
 
-        // Add Tree
+        // ADD TREE BUTTON
+
         btnAddTree.setOnClickListener {
 
-            val name = etSpecies.text.toString().trim()
-            val oxygen = etGirth.text.toString().toIntOrNull() ?: 0
+            val species =
+                etSpecies.text.toString().trim()
 
-            if (name.isEmpty()) {
-                Toast.makeText(this, "Enter tree name", Toast.LENGTH_SHORT).show()
+            val girth =
+                etGirth.text.toString()
+                    .toIntOrNull() ?: 0
+
+            if (species.isEmpty()) {
+
+                Toast.makeText(
+                    this,
+                    "Please Enter Tree Name",
+                    Toast.LENGTH_SHORT
+                ).show()
+
                 return@setOnClickListener
             }
 
-            // 🤖 AI Suggestion
-            val suggestion = getTreeSuggestion(name)
-            tvSuggestion.text = "🤖 AI Suggestion:\n$suggestion"
+            // TREE HEALTH
+
+            val health = when {
+
+                girth > 8 ->
+                    "Good 🌳"
+
+                girth >= 5 ->
+                    "Average 🌱"
+
+                else ->
+                    "Poor 🍂"
+            }
+
+            // OXYGEN CALCULATION
+
+            val oxygen =
+                calculateOxygen(species, girth)
+
+            // AI SUGGESTION
+
+            val suggestion =
+                getTreeSuggestion(species)
+
+            tvSuggestion.text =
+                "🤖 AI Suggestion:\n$suggestion"
+
+            // FIREBASE DATA
 
             val tree = hashMapOf(
-                "name" to name,
+
+                "name" to species,
+
+                "girth" to girth,
+
                 "oxygenScore" to oxygen,
-                "location" to "Bangalore"
+
+                "health" to health
             )
+
+            // SAVE TREE
 
             db.collection("trees")
                 .add(tree)
+
                 .addOnSuccessListener {
-                    Toast.makeText(this, "✅ Tree Added Successfully", Toast.LENGTH_SHORT).show()
+
+                    Toast.makeText(
+                        this,
+                        "🌳 Tree Added Successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
                     etSpecies.text.clear()
+
                     etGirth.text.clear()
+
                     loadTrees()
                 }
+
                 .addOnFailureListener {
-                    Toast.makeText(this, "Error ❌", Toast.LENGTH_SHORT).show()
+
+                    Toast.makeText(
+                        this,
+                        "❌ Failed To Add Tree",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
         }
 
-        // Empty Pit
+        // EMPTY PIT BUTTON
+
         btnEmptyPit.setOnClickListener {
+
+            val pit = hashMapOf(
+
+                "status" to "empty"
+            )
+
             db.collection("pits")
-                .add(mapOf("status" to "empty"))
+                .add(pit)
+
                 .addOnSuccessListener {
-                    Toast.makeText(this, "Empty pit saved ❌", Toast.LENGTH_SHORT).show()
+
+                    Toast.makeText(
+                        this,
+                        "❌ Empty Pit Marked",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
+        }
+
+        // OPEN MAP BUTTON
+
+        btnOpenMap.setOnClickListener {
+
+            startActivity(
+                Intent(this, MapsActivity::class.java)
+            )
         }
     }
 
-    // Load Data + Dashboard
+    // LOAD TREES FUNCTION
+
     private fun loadTrees() {
+
         db.collection("trees")
             .get()
+
             .addOnSuccessListener { result ->
+
+                // CLEAR OLD LIST
 
                 treeList.clear()
 
                 var totalTrees = 0
+
                 var totalOxygen = 0
 
-                for (document in result) {
-                    val name = document.getString("name") ?: "Unknown"
-                    val oxygen = document.getLong("oxygenScore")?.toInt() ?: 0
+                // LOOP THROUGH DATA
 
-                    treeList.add("🌳 $name\nOxygen: $oxygen")
+                for (document in result) {
+
+                    val name =
+                        document.getString("name")
+                            ?: "Unknown"
+
+                    val oxygen =
+                        document.getLong("oxygenScore")
+                            ?.toInt() ?: 0
+
+                    val health =
+                        document.getString("health")
+                            ?: "Unknown"
+
+                    // ADD TO LIST
+
+                    treeList.add(
+
+                        "🌳 Tree Name : $name\n\n" +
+
+                                "🌱 Oxygen Score : $oxygen\n\n" +
+
+                                "💚 Health Status : $health"
+                    )
 
                     totalTrees++
+
                     totalOxygen += oxygen
                 }
 
+                // REFRESH LISTVIEW
+
                 adapter.notifyDataSetChanged()
 
-                findViewById<TextView>(R.id.tvTotalTrees).text =
-                    "🌳 Total Trees: $totalTrees"
+                // POPUP
 
-                findViewById<TextView>(R.id.tvTotalOxygen).text =
-                    "🌱 Total Oxygen: $totalOxygen"
+                Toast.makeText(
+                    this,
+                    "Total Trees Loaded : $totalTrees",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+                // DASHBOARD
+
+                findViewById<TextView>(
+                    R.id.tvTotalTrees
+                ).text =
+                    "🌳 Total Trees : $totalTrees"
+
+                findViewById<TextView>(
+                    R.id.tvTotalOxygen
+                ).text =
+                    "🌱 Total Oxygen : $totalOxygen"
+
+                // GREEN GAP DETECTION
+
+                if (totalTrees < 5) {
+
+                    findViewById<TextView>(
+                        R.id.tvGreenGap
+                    ).text =
+                        "⚠️ Green Gap Detected - Plant More Trees"
+
+                } else {
+
+                    findViewById<TextView>(
+                        R.id.tvGreenGap
+                    ).text =
+                        "✅ Good Green Coverage Area"
+                }
+            }
+
+            .addOnFailureListener {
+
+                Toast.makeText(
+                    this,
+                    "❌ Failed To Load Trees",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
-    // 🤖 AI Logic
-    private fun getTreeSuggestion(name: String): String {
+    // OXYGEN FORMULA
 
-        return when (name.lowercase()) {
+    private fun calculateOxygen(
+        species: String,
+        girth: Int
+    ): Int {
 
-            "neem" -> "🌳 High Oxygen Tree\nBenefits: Medicinal, Air Purifier"
-            "peepal" -> "🌳 Very High Oxygen Tree\nBenefits: Releases oxygen 24hrs"
-            "honge" -> "🌳 Medium Oxygen Tree\nBenefits: Improves soil fertility"
-            "mango" -> "🌳 Fruit Tree\nBenefits: Provides food and shade"
-            "coconut" -> "🌳 Tropical Tree\nBenefits: Multi-purpose tree"
+        val factor = when (species.lowercase()) {
 
-            else -> "🌱 Unknown Tree\nSuggestion: Try native trees like Neem or Peepal"
+            "neem" -> 5
+
+            "peepal" -> 7
+
+            "honge" -> 4
+
+            "mango" -> 3
+
+            "coconut" -> 2
+
+            else -> 1
+        }
+
+        return girth * factor
+    }
+
+    // AI TREE SUGGESTION
+
+    private fun getTreeSuggestion(
+        species: String
+    ): String {
+
+        return when (species.lowercase()) {
+
+            "neem" ->
+                "Neem is a medicinal native tree with high oxygen production."
+
+            "peepal" ->
+                "Peepal tree provides very high oxygen and shade."
+
+            "honge" ->
+                "Honge tree improves soil fertility."
+
+            "mango" ->
+                "Mango tree gives fruits and environmental benefits."
+
+            "coconut" ->
+                "Coconut tree is useful in tropical climate."
+
+            else ->
+                "Try planting native trees like Neem or Honge."
         }
     }
 }

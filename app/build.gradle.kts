@@ -1,56 +1,98 @@
 plugins {
+
     alias(libs.plugins.android.application)
+
     alias(libs.plugins.google.gms.google.services)
 }
 
 android {
+
     namespace = "com.example.hasiruusiru"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+
+    compileSdk = 36
 
     defaultConfig {
+
         applicationId = "com.example.hasiruusiru"
+
         minSdk = 24
+
         targetSdk = 36
+
         versionCode = 1
+
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner =
+            "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+
         release {
+
             isMinifyEnabled = false
+
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
+
+                getDefaultProguardFile(
+                    "proguard-android-optimize.txt"
+                ),
+
                 "proguard-rules.pro"
             )
         }
     }
+
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+
+        sourceCompatibility =
+            JavaVersion.VERSION_11
+
+        targetCompatibility =
+            JavaVersion.VERSION_11
     }
 }
 
 dependencies {
 
     implementation(libs.androidx.core.ktx)
+
     implementation(libs.androidx.appcompat)
+
     implementation(libs.material)
+
     implementation(libs.androidx.activity)
+
     implementation(libs.androidx.constraintlayout)
 
-    // 🔥 Firebase BOM (VERY IMPORTANT)
-    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
+    // FIREBASE
 
-    // 🔥 Firestore (NO VERSION needed now)
-    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation(
+        platform(
+            "com.google.firebase:firebase-bom:33.5.1"
+        )
+    )
+
+    implementation(
+        "com.google.firebase:firebase-firestore-ktx"
+    )
+
+    // GOOGLE MAPS
+
+    implementation(
+        "com.google.android.gms:play-services-maps:19.0.0"
+    )
+
+    // LOCATION
+
+    implementation(
+        "com.google.android.gms:play-services-location:21.0.1"
+    )
 
     testImplementation(libs.junit)
+
     androidTestImplementation(libs.androidx.junit)
+
     androidTestImplementation(libs.androidx.espresso.core)
 }
